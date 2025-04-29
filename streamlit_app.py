@@ -13,7 +13,7 @@ CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
 AUTH_URL = "https://accounts.zoho.com/oauth/v2/auth"
 TOKEN_URL = "https://accounts.zoho.com/oauth/v2/token"
 SCOPE = "ZohoCRM.settings.READ,ZohoCRM.modules.READ"
-REDIRECT_URL = "https://stream-zoho.streamlit.app/"  
+REDIRECT_URL = "https://mcp-cms-demo.streamlit.app/"  
 
 FASTAPI_BACKEND_URL = "https://zoho-mcp-fastapi.onrender.com/save-token"
 API_URL = "https://zoho-mcp-fastapi.onrender.com/chat"
