@@ -11,3 +11,4 @@ pyngrok
 langchain_mcp_adapters
 google-generativeai
 openai
+redis
