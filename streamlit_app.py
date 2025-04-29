@@ -48,7 +48,7 @@ def handle_callback():
 
         res = requests.post(TOKEN_URL, data=token_data)
         token_json = res.json()
-
+        st.write(token_json)
         if "access_token" in token_json:
             try:
                 res = requests.post(FASTAPI_BACKEND_URL, json=token_json)
