@@ -52,7 +52,7 @@ def handle_callback():
         if "access_token" in token_json:
             save_token(token_json)
             st.success("✅ Token saved successfully! You can now use the app.")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("❌ Failed to retrieve access token.")
 
