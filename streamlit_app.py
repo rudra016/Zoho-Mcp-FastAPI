@@ -33,6 +33,7 @@ def save_token(token_data):
 # Handle OAuth callback
 def handle_callback():
     query_params = st.query_params
+    st.write("Query Params:", query_params)
     if "code" in query_params:
         code = query_params["code"][0]
         st.success(f"Authorization code received: {code}")
@@ -45,7 +46,7 @@ def handle_callback():
             "client_secret": CLIENT_SECRET
         }
 
-        res = requests.post(TOKEN_URL, params=token_data)
+        res = requests.post(TOKEN_URL, data=token_data)
         token_json = res.json()
 
         if "access_token" in token_json:
