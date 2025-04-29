@@ -181,7 +181,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                     criteria_parts.append(f"({key}:{op}:{val_str})")
 
                 criteria_string = criteria_parts[0] if len(criteria_parts) == 1 else f"({' and '.join(criteria_parts)})"
-                url = f"https://www.zohoapis.com/crm/v7/{module_name}/search?criteria={criteria_string}&per_page=50"
+                url = f"https://www.zohoapis.com/crm/v7/{module_name}/search?criteria={criteria_string}&per_page=15"
                 print("Generated URL:", url)
 
                 result = await fetch_result_tool.ainvoke({"url": url})
