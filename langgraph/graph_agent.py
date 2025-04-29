@@ -123,6 +123,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                 return {"error": f"Failed to parse descriptor response: {e}", "raw": descriptor_response_raw}
             
             field_hints = descriptor_response.get("pinecone_results", [])
+            field_hints_joined = "\n\n".join(field_hints)
             try:
                 llm_prompt = f"""
                     You are an assistant to help construct Zoho CRM search queries. Here is the user query:
@@ -139,7 +140,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                     4. Return only JSON, No Notes, No Explaination. 
 
                     Field Information (from vector search):
-                    {'\n\n'.join(field_hints)}
+                    {field_hints_joined}
                     
                     {descriptor_response["descriptors"]}
 
