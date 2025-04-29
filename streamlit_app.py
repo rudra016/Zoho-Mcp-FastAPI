@@ -13,9 +13,9 @@ CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
 AUTH_URL = "https://accounts.zoho.com/oauth/v2/auth"
 TOKEN_URL = "https://accounts.zoho.com/oauth/v2/token"
 SCOPE = "ZohoCRM.settings.READ,ZohoCRM.modules.READ"
-REDIRECT_URL = "https://stream-zoho.streamlit.app/"  # Set this to your deployed Streamlit URL
+REDIRECT_URL = "https://stream-zoho.streamlit.app/"  
 
-# Backend FastAPI URL
+
 API_URL = "https://zoho-mcp-fastapi.onrender.com/chat"
 
 # Load token if available
@@ -32,7 +32,7 @@ def save_token(token_data):
 
 # Handle OAuth callback
 def handle_callback():
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params()
     if "code" in query_params:
         code = query_params["code"][0]
         st.success(f"Authorization code received: {code}")
@@ -62,7 +62,6 @@ def main():
 
     token_data = load_token()
 
-    # Check if token is available
     if not token_data:
         st.subheader("🔐 Authenticate with Zoho CRM")
         params = {
@@ -78,7 +77,6 @@ def main():
         st.markdown(f"📢 Please authenticate first using below link:")
         st.markdown(f"[🔗 Authenticate with Zoho]({auth_url})", unsafe_allow_html=True)
 
-        # Handle OAuth callback if redirected
         handle_callback()
 
     else:
