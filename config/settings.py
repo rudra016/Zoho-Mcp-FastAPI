@@ -5,4 +5,3 @@ load_dotenv()
 
 MCP_TOOL_DIRECTORY = os.getenv("MCP_TOOL_DIRECTORY")  
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-REDIS_URL = os.getenv("REDIS_URL")

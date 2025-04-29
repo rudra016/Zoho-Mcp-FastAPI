@@ -48,7 +48,6 @@ def handle_callback():
 
         res = requests.post(TOKEN_URL, data=token_data)
         token_json = res.json()
-        st.write(token_json)
         if "access_token" in token_json:
             try:
                 res = requests.post(FASTAPI_BACKEND_URL, json=token_json)
@@ -88,8 +87,8 @@ def main():
         }
         auth_url = f"{AUTH_URL}?{urlencode(params)}"
 
-        st.markdown(f"📢 Please authenticate first using below link:")
-        st.markdown(f"[🔗 Authenticate with Zoho]({auth_url})", unsafe_allow_html=True)
+        st.markdown(f" Please authenticate first using below link:")
+        st.markdown(f"[Authenticate with Zoho]({auth_url})", unsafe_allow_html=True)
 
         handle_callback()
 
