@@ -35,7 +35,7 @@ def handle_callback():
     query_params = st.query_params
     st.write("Query Params:", query_params)
     if "code" in query_params:
-        code = query_params["code"][0]
+        code = query_params["code"]
         st.success(f"Authorization code received: {code}")
 
         token_data = {
