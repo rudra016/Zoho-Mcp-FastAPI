@@ -1,0 +1,13 @@
+requests
+fastapi
+uvicorn
+pydantic
+langchain
+langchain_community
+langgraph 
+langsmith
+streamlit
+pyngrok
+langchain_mcp_adapters
+google-generativeai
+openai
