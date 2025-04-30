@@ -11,6 +11,25 @@ Each Lead record holds preliminary information gathered from inquiries, marketin
 - **Industry**, **Annual Revenue**, **Number of Employees**, etc.
 - **Lead Owner**: The sales rep assigned to handle the lead.
 
+Common Query Patterns:
+- Finding new leads
+- Looking for qualified leads
+- Searching for leads from specific sources
+- Finding leads in certain industries
+- Looking for high-potential leads
+
+Synonyms and Related Terms:
+- Prospects
+- Potential customers
+- Sales leads
+- Marketing leads
+- Qualified leads
+- Unqualified leads
+- Hot leads
+- Cold leads
+- Lead conversion
+- Lead nurturing
+
 The Leads module is crucial for capturing and nurturing early-stage interest, qualifying prospects through outreach or scoring, and then converting them into actionable sales opportunities.
 """
 
@@ -26,6 +45,33 @@ Deals are used to track progress through the sales process, from qualification t
 - **Owner**: The sales rep handling the deal.
 - **Probability**: Likelihood of winning the deal.
 
+Common Query Patterns:
+- Finding high-value opportunities
+- Looking for deals in specific stages
+- Searching for deals by amount
+- Finding deals closing soon
+- Looking for top opportunities
+- Finding deals by probability
+- Searching for deals by owner
+- Finding deals by account
+
+Synonyms and Related Terms:
+- Opportunities
+- Sales opportunities
+- Business deals
+- High-value deals
+- Top deals
+- Pipeline deals
+- Potential deals
+- Active deals
+- Closed deals
+- Lost deals
+- Deal value
+- Deal size
+- Deal stage
+- Deal status
+- Deal probability
+
 Deals also support custom fields, tasks, events, notes, and integration with email, pipeline reports, and automation rules. This module is essential for forecasting sales and measuring performance across regions, products, or agents.
 """
 
@@ -40,8 +86,32 @@ Each contact may be linked to one or more Deals, Accounts, Campaigns, or Activit
 - **Phone/Mobile**: Direct contact numbers.
 - **Contact Owner**: CRM user responsible for follow-ups.
 - **Account Name**: Associated organization or company.
-- **Title**: The person’s role or designation (e.g., CEO, Sales Manager).
+- **Title**: The person's role or designation (e.g., CEO, Sales Manager).
 - **Department**, **Mailing Address**, **City**, **State**, etc.
+
+Common Query Patterns:
+- Finding contacts by company
+- Looking for decision makers
+- Searching for contacts by role
+- Finding contacts by location
+- Looking for key contacts
+- Finding contacts by account
+- Searching for contacts by owner
+
+Synonyms and Related Terms:
+- People
+- Individuals
+- Decision makers
+- Key contacts
+- Business contacts
+- Client contacts
+- Prospect contacts
+- Account contacts
+- Contact roles
+- Contact titles
+- Contact information
+- Contact details
+- Contact management
 
 The Contacts module helps manage communication history, send email campaigns, schedule meetings, and trigger workflows. It's pivotal in building strong client relationships and managing follow-ups.
 """

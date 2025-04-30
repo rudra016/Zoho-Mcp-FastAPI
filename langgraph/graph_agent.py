@@ -52,13 +52,25 @@ async def reasoning_step(query: str):
     """.strip()
 
     prompt = (
-        "You are an intelligent assistant that:\n"
-        "1. Analyzes a user query against CRM module documentation.\n"
-        "2. Determines the Zoho module the query targets (\"Deals\", \"Contacts\", etc.).\n"
-        "3. Classifies the query as either \"simple\" or \"complex\".\n"
-        "4. Rewrites the query using semantically rich field names from the module docs.\n\n"
-        "Respond ONLY with JSON in the format:\n"
-        '{\n  "module": "<ModuleName>",\n  "complexity": "<simple|complex>",\n  "semantic_query": "<Rewritten query>"\n}\n\n'
+        "You are an intelligent CRM assistant that understands user queries in natural language and maps them to the appropriate Zoho CRM module.\n\n"
+        "Your task is to:\n"
+        "1. Analyze the user's query against the CRM module documentation\n"
+        "2. Determine which module (Deals, Contacts, or Leads) best matches the query\n"
+        "3. Classify the query complexity (simple or complex)\n"
+        "4. Rewrite the query as a natural, paragraph-style semantic query that captures the user's intent\n\n"
+        "Rules for semantic query formation:\n"
+        "1. Use the module's terminology and field names\n"
+        "2. Include relevant context from the module documentation\n"
+        "3. Make it a natural, conversational paragraph (2-3 sentences)\n"
+        "4. Capture both explicit and implicit requirements\n"
+        "5. Use appropriate synonyms and related terms from the documentation\n"
+        "6. If the query is ambiguous, make reasonable assumptions based on common patterns\n\n"
+        "Respond ONLY with JSON in this format:\n"
+        '{\n'
+        '  "module": "<ModuleName>",\n'
+        '  "complexity": "<simple|complex>",\n'
+        '  "semantic_query": "<Natural paragraph explaining the query intent>",\n'
+        '}\n\n'
         "Module Documentation:\n"
         f"{full_doc}"
     )
@@ -67,7 +79,7 @@ async def reasoning_step(query: str):
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that analyzes CRM queries and returns structured JSON responses."},
+                {"role": "system", "content": "You are a CRM expert that understands natural language queries and maps them to appropriate modules."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3
@@ -85,24 +97,26 @@ async def reasoning_step(query: str):
             return {
                 "module": parsed.get("module", "Deals").strip().title(),
                 "complexity": parsed.get("complexity", "simple").lower(),
-                "semantic_query": parsed.get("semantic_query", query)
+                "semantic_query": parsed.get("semantic_query", query),
             }
 
         except Exception as e:
             print(f"Error parsing reasoning output: {e}")
             return {
                 "module": "Deals",
-                "complexity": "complex",
-                "semantic_query": query
+                "complexity": "simple",
+                "semantic_query": query,
             }
 
     except Exception as e:
-        print(f"Error in GPT-4 API call: {e}")
+        print(f"Error in GPT-4o-mini API call: {e}")
         return {
             "module": "Deals",
             "complexity": "simple",
-            "semantic_query": query
+            "semantic_query": query,
         }
+
+
 async def tool_use_step(query: str, module_name: str, complexity: str):
     async with sse_client(MCP_SSE_URL) as (read, write):
         async with ClientSession(read, write) as session:
@@ -136,9 +150,10 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                     2. Do not Assume any api name by youself.
                     3. If the query references a field not available in the list, return:
                     {{ "error": "Relevant field not found in context." }}
+                    4. Follow the format Instructions strictly.
                     4. Return only JSON, No Notes, No Explaination. 
 
-                    Field Information (from vector search):
+                    Api Fields Information (from vector search):
                     {field_hints_joined}
 
                     {descriptor_response["descriptors"]}
@@ -217,25 +232,55 @@ async def summarization_step(data: dict):
 
     records = data["records_response"].get("results", {}).get("data", [])
     if not records:
-        return {"response": "No data found matching your query.", **data}
+        return {"response": "I couldn't find any matching records for your query.", **data}
+
+  
+    query = data["semantic_query"].lower()
+
+    # Simple intent classification 
+    is_search = any(t in query for t in ["show", "find", "list", "get", "search", "display"])
+    is_count = any(t in query for t in ["how many", "count", "number of"])
+    is_specific = any(t in query for t in ["who", "what", "which", "when", "where", "highest", "lowest", "top"])
+    is_summary = any(t in query for t in ["summary", "overview", "insight", "analyze"])
+
+    intent_flags = {
+        "search": is_search,
+        "count": is_count,
+        "specific": is_specific,
+        "summary": is_summary
+    }
 
     summary_prompt = f"""
-    You are a helpful assistant summarizing Zoho CRM search results for a user.
-    The user's request was: "{data['semantic_query']}"
-
-    Here is the data to summarize:
+    You are a helpful CRM assistant that provides natural, conversational responses to user queries about Zoho CRM data.
+    
+    The user asked: "{data['semantic_query']}"
+    
+    Here is the relevant data:
     {json.dumps(records, indent=2)}
 
-    Respond naturally and conversationally. Show a clean, structured summary as a list. Avoid robotic tone. Be brief but informative.
+    Rules for your response:
+    1. Be conversational and natural - don't sound like a robot listing data
+    2. If the user is searching for specific information, focus on answering their question directly
+    3. If they're looking for a list, organize the information in a way that makes sense for their query
+    4. If they're asking about counts or numbers, provide the count in a natural way
+    5. Use appropriate context from the query to frame your response
+    6. Don't just list the data - explain what it means in relation to their question
+    7. If there are multiple records, group or summarize them meaningfully
+    8. Use natural language to describe relationships between data points
+    9. Avoid technical jargon unless the user's query specifically asks for it
+
+    Intent flags: {json.dumps(intent_flags)}
+    
+    Respond as if you're having a conversation with the user, not just listing data.
     """
 
     summary_response = await client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You summarize CRM data for users in a friendly and natural tone."},
+            {"role": "system", "content": "You are a helpful CRM assistant that provides natural, conversational responses about CRM data."},
             {"role": "user", "content": summary_prompt}
         ],
-        temperature=0.4
+        temperature=0.7  
     )
 
     data["response"] = summary_response.choices[0].message.content
