@@ -103,7 +103,6 @@ async def reasoning_step(query: str):
             "complexity": "simple",
             "semantic_query": query
         }
-
 async def tool_use_step(query: str, module_name: str, complexity: str):
     async with sse_client(MCP_SSE_URL) as (read, write):
         async with ClientSession(read, write) as session:
@@ -115,13 +114,13 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
 
             get_descriptor_tool = next(t for t in tools if t.name == "get_filter_descriptors")
             fetch_result_tool = next(t for t in tools if t.name == "fetch_zoho_results")
-  
+
             descriptor_response_raw = await get_descriptor_tool.ainvoke({"question": query, "module": module_name, "complexity": complexity})
             try:
                 descriptor_response = json.loads(descriptor_response_raw)
             except Exception as e:
                 return {"error": f"Failed to parse descriptor response: {e}", "raw": descriptor_response_raw}
-            
+
             field_hints = descriptor_response.get("pinecone_results", [])
             field_hints_joined = "\n\n".join(field_hints)
             try:
@@ -141,13 +140,13 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
 
                     Field Information (from vector search):
                     {field_hints_joined}
-                    
+
                     {descriptor_response["descriptors"]}
 
                     {descriptor_response["format_instructions"]}
                 """
                 print("Prompt sent to LLM:\n", llm_prompt)
-                
+
                 filter_response = await client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -156,7 +155,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                     ],
                     temperature=0.3
                 )
-                
+
                 filter_text = filter_response.choices[0].message.content
                 print("LLM filter output:", filter_text)
 
@@ -164,7 +163,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                 if not match:
                     print("No valid JSON found in LLM response")
                     return {"error": "LLM did not return valid JSON.", "raw": filter_text}
-                
+
                 filters_dict = json.loads(match.group())
                 print("Successfully parsed JSON from LLM response")
 
@@ -185,7 +184,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                 print("Generated URL:", url)
 
                 result = await fetch_result_tool.ainvoke({"url": url})
-      
+
                 print("Raw API response:", result)
 
                 if isinstance(result, str):
@@ -197,77 +196,76 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                             "raw_response": result
                         }
 
-                if result is None:
-                    print("API returned None")
-                    return {"error": "API returned None", "url": url}
-                
-                if isinstance(result, dict) and not result:
-                    print("API returned empty dictionary")
-                    return {"error": "API returned empty dictionary", "url": url}
-
-                if isinstance(result, dict) and "error" in result:
-                    print(f"API returned error: {result['error']}")
-                    return {"error": f"API error: {result['error']}", "url": url}
-
-                records = result.get("results", {}).get("data", [])
-
-                if not records:
-                    print("API response missing 'data' field or data is empty")
-                    return {"error": "API response missing or empty 'data' field", "url": url, "raw_response": result}
-
-                print("API call successful and data received")
-
-                summary = f"""
-                You are an assistant that summarizes Zoho CRM results for the user.
-                User asked : "{query}"
-
-                Here is the data:
-
-                {json.dumps(records, indent=2)}
-
-                Respond only in context of the user's question.
-                """
-               
-
-                summary_response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": "You are an assistant that summarizes Zoho CRM results."},
-                        {"role": "user", "content": summary}
-                    ],
-                    temperature=0.3
-                )
-                print("Successfully generated summary")
-                summary_text = summary_response.choices[0].message.content
-
                 return {
-                    "response": summary_text,
+                    "records_response": result,
                     "url": url,
-                    "tool_output": result
+                    "semantic_query": query
                 }
 
             except Exception as e:
                 print(f"Error in API call or processing: {str(e)}")
                 print(f"Error type: {type(e).__name__}")
-                return {"error": f"Error in API call or processing: {str(e)}", "url": url}
+                return {
+                    "error": f"Error in API call or processing: {str(e)}",
+                    "type": type(e).__name__
+                }
+
+
+async def summarization_step(data: dict):
+    if data.get("error") or not data.get("records_response"):
+        return data
+
+    records = data["records_response"].get("results", {}).get("data", [])
+    if not records:
+        return {"response": "No data found matching your query.", **data}
+
+    summary_prompt = f"""
+    You are a helpful assistant summarizing Zoho CRM search results for a user.
+    The user's request was: "{data['semantic_query']}"
+
+    Here is the data to summarize:
+    {json.dumps(records, indent=2)}
+
+    Respond naturally and conversationally. Show a clean, structured summary as a list. Avoid robotic tone. Be brief but informative.
+    """
+
+    summary_response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You summarize CRM data for users in a friendly and natural tone."},
+            {"role": "user", "content": summary_prompt}
+        ],
+        temperature=0.4
+    )
+
+    data["response"] = summary_response.choices[0].message.content
+    return data
+
 
 async def build_graph():
     builder = StateGraph(dict)
 
     async def reasoning_node(state):
         planning = await reasoning_step(state["query"])
-        state.update(planning)  
+        state.update(planning)
         return state
 
     async def tool_node(state):
-        result = await tool_use_step(state["semantic_query"], state["module"], state["complexity"])
-        return result
+        tool_data = await tool_use_step(state["semantic_query"], state["module"], state["complexity"])
+        state.update(tool_data)
+        return state
+
+    async def summary_node(state):
+        state = await summarization_step(state)
+        return state
 
     builder.add_node("reasoning", reasoning_node)
     builder.add_node("tools", tool_node)
+    builder.add_node("summary", summary_node)
 
     builder.set_entry_point("reasoning")
     builder.add_edge("reasoning", "tools")
-    builder.set_finish_point("tools")
+    builder.add_edge("tools", "summary")
+    builder.set_finish_point("summary")
 
     return builder.compile()

@@ -6,5 +6,5 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     response: Optional[str] = None
-    messages: Optional[list] = []
-    tool_output: Optional[dict] = None
+    messages: List[Dict[str, Any]] = []
+    tool_output: Dict[str, Any] = {}
