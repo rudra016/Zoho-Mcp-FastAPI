@@ -77,7 +77,7 @@ async def reasoning_step(query: str):
 
     try:
         response = await client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-mini",
             messages=[
                 {"role": "system", "content": "You are a CRM expert that understands natural language queries and maps them to appropriate modules."},
                 {"role": "user", "content": prompt}
@@ -163,7 +163,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
                 print("Prompt sent to LLM:\n", llm_prompt)
 
                 filter_response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model="gpt-4.1-mini",
                     messages=[
                         {"role": "system", "content": "You are an assistant that helps construct Zoho CRM search queries."},
                         {"role": "user", "content": llm_prompt}
@@ -270,12 +270,12 @@ async def summarization_step(data: dict):
     9. Avoid technical jargon unless the user's query specifically asks for it
 
     Intent flags: {json.dumps(intent_flags)}
-    
+
     Respond as if you're having a conversation with the user, not just listing data.
     """
 
     summary_response = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": "You are a helpful CRM assistant that provides natural, conversational responses about CRM data."},
             {"role": "user", "content": summary_prompt}
