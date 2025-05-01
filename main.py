@@ -12,6 +12,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+@app.get("/")
+async def root():
+    return {"status": "Zoho MCP FastAPI backend is running."}
 
 app.include_router(chat_router)
 app.include_router(token_router)
