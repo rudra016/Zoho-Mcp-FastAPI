@@ -57,19 +57,19 @@ async def reasoning_step(query: str):
         "1. Analyze the user's query using the CRM module documentation.\n"
         "2. Identify the most appropriate module: Deals, Contacts, or Leads.\n"
         "3. Classify the query as either 'simple' or 'complex'.\n"
-        "4. Rewrite the user query into a refined, paragraph-style (at least 2 lines) version that clearly communicates the original intent.\n\n"
-        "Guidelines for rewriting the query:\n"
-        "- Do NOT add extra assumptions or context that is not present in the original query.\n"
-        "- Use CRM terminology and field names ONLY if mentioned or strongly implied by the query.\n"
-        "- Do not invent fields, stages, or filters.\n"
-        "- Maintain the user's focus and structure — just clarify it.\n"
-        "- Output should maintain the specificity of the original query.\n"
-        "- If the query is vague, keep the rewrite vague too.\n\n"
-        "Respond ONLY with valid JSON in this format:\n"
+        "4. Rewrite the user query into a clear, well-structured paragraph (minimum 2–3 lines) that communicates the original intent accurately.\n\n"
+        "Mandatory Guidelines for rewriting the query:\n"
+        "- DO NOT add any information that is not explicitly or implicitly present in the original query.\n"
+        "- Use CRM terminology and field names only if they are clearly mentioned or strongly implied.\n"
+        "- DO NOT invent filters, stages, fields, or conditions that were not mentioned.\n"
+        "- The rewritten query MUST be written as a paragraph of at least **two full sentences**.\n"
+        "- Maintain the specificity and structure of the original query without oversimplifying or altering intent.\n"
+        "- If the query is vague or high-level, retain that vagueness in the rewritten form.\n\n"
+        "Respond ONLY with valid JSON in the following format:\n"
         '{\n'
         '  "module": "<ModuleName>",\n'
         '  "complexity": "<simple|complex>",\n'
-        '  "semantic_query": "<Refined paragraph version of the original user query>",\n'
+        '  "semantic_query": "<A paragraph with at least 2 sentences explaining the user\'s intent>",\n'
         '}\n\n'
         "Module Documentation:\n"
         f"{full_doc}"
