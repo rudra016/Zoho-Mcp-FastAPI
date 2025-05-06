@@ -106,7 +106,7 @@ def main():
                     response = requests.post(API_URL, json={"query": user_input})
                     response.raise_for_status()
                     data = response.json()
-                    
+                    print(data)
                     st.subheader("🧠 Final Response")
                     st.markdown(f"> {data.get('response', 'No final response returned')} ")
 

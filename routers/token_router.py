@@ -20,6 +20,7 @@ async def save_token(request: Request):
         token_data = await request.json()
 
         token_data_memory = token_data
+        print(token_data_memory)
 
        
         with open(TOKEN_PATH, "w") as f:
