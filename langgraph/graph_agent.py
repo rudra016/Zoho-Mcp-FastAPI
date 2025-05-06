@@ -57,7 +57,7 @@ async def reasoning_step(query: str):
         "1. Analyze the user's query using the CRM module documentation.\n"
         "2. Identify the most appropriate module: Deals, Contacts, or Leads.\n"
         "3. Classify the query as either 'simple' or 'complex'.\n"
-        "4. Rewrite the user query into a refined, paragraph-style version that clearly communicates the original intent.\n\n"
+        "4. Rewrite the user query into a refined, paragraph-style (at least 2 lines) version that clearly communicates the original intent.\n\n"
         "Guidelines for rewriting the query:\n"
         "- Do NOT add extra assumptions or context that is not present in the original query.\n"
         "- Use CRM terminology and field names ONLY if mentioned or strongly implied by the query.\n"
