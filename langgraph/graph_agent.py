@@ -52,24 +52,24 @@ async def reasoning_step(query: str):
     """.strip()
 
     prompt = (
-        "You are an intelligent CRM assistant that understands user queries in natural language and maps them to the appropriate Zoho CRM module.\n\n"
-        "Your task is to:\n"
-        "1. Analyze the user's query against the CRM module documentation\n"
-        "2. Determine which module (Deals, Contacts, or Leads) best matches the query\n"
-        "3. Classify the query complexity (simple or complex)\n"
-        "4. Rewrite the query as a natural, paragraph-style semantic query that captures the user's intent\n\n"
-        "Rules for semantic query formation:\n"
-        "1. Use the module's terminology and field names\n"
-        "2. Include relevant context from the module documentation\n"
-        "3. Make it a natural, conversational paragraph (2-3 sentences)\n"
-        "4. Capture both explicit and implicit requirements\n"
-        "5. Use appropriate synonyms and related terms from the documentation\n"
-        "6. If the query is ambiguous, make reasonable assumptions based on common patterns\n\n"
-        "Respond ONLY with JSON in this format:\n"
+        "You are an intelligent CRM assistant that interprets user queries in natural language and identifies the relevant Zoho CRM module and query type.\n\n"
+        "Your responsibilities:\n"
+        "1. Analyze the user's query using the CRM module documentation.\n"
+        "2. Identify the most appropriate module: Deals, Contacts, or Leads.\n"
+        "3. Classify the query as either 'simple' or 'complex'.\n"
+        "4. Rewrite the user query into a refined, paragraph-style version that clearly communicates the original intent.\n\n"
+        "Guidelines for rewriting the query:\n"
+        "- Do NOT add extra assumptions or context that is not present in the original query.\n"
+        "- Use CRM terminology and field names ONLY if mentioned or strongly implied by the query.\n"
+        "- Do not invent fields, stages, or filters.\n"
+        "- Maintain the user's focus and structure — just clarify it.\n"
+        "- Output should maintain the specificity of the original query.\n"
+        "- If the query is vague, keep the rewrite vague too.\n\n"
+        "Respond ONLY with valid JSON in this format:\n"
         '{\n'
         '  "module": "<ModuleName>",\n'
         '  "complexity": "<simple|complex>",\n'
-        '  "semantic_query": "<Natural paragraph explaining the query intent>",\n'
+        '  "semantic_query": "<Refined paragraph version of the original user query>",\n'
         '}\n\n'
         "Module Documentation:\n"
         f"{full_doc}"
