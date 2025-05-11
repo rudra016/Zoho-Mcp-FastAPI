@@ -79,7 +79,7 @@ async def reasoning_step(query: str):
         response = await client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[
-                {"role": "system", "content": "You are a CRM expert that understands natural language queries and maps them to appropriate modules."},
+                {"role": "system", "content": "You are a CRM expert that understands natural language queries, rewrites them into a paragraph form and maps them to appropriate modules."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3
@@ -109,7 +109,7 @@ async def reasoning_step(query: str):
             }
 
     except Exception as e:
-        print(f"Error in GPT-4o-mini API call: {e}")
+        print(f"Error in GPT-4.1-mini API call: {e}")
         return {
             "module": "Deals",
             "complexity": "simple",
