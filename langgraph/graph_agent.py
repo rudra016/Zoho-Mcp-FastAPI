@@ -12,7 +12,7 @@ import json
 import re
 import os
 from dotenv import load_dotenv
-
+from datetime import datetime
 load_dotenv()
 # Configure APIs
 genai.configure(api_key=GEMINI_API_KEY)
@@ -33,9 +33,13 @@ MODULE_DOCS = {
 # )
 
 MCP_SSE_URL = "https://zoho-mcp-server.onrender.com/sse"
+today = datetime.now().strftime("%Y-%m-%d")
 
 async def reasoning_step(query: str):
     full_doc = f"""
+
+    Today's Date: {today}
+
     Zoho Module Literature:
     
     Deals:
