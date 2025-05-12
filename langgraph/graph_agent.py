@@ -143,6 +143,7 @@ async def tool_use_step(query: str, module_name: str, complexity: str):
             field_hints_joined = "\n\n".join(field_hints)
             try:
                 llm_prompt = f"""
+                    Today's Date: {today}
                     You are an assistant to help construct Zoho CRM search queries. Here is the user query:
 
                     {query}
