@@ -11,7 +11,6 @@ token_data_memory = None
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN_PATH = os.path.join(BASE_DIR, "token_store.json")
 
-
 @router.post("/save-token")
 async def save_token(request: Request):
     global token_data_memory
@@ -19,10 +18,14 @@ async def save_token(request: Request):
     try:
         token_data = await request.json()
 
+        # Inject timestamp if not present
+        if "timestamp" not in token_data:
+            import time
+            token_data["timestamp"] = int(time.time())
+
         token_data_memory = token_data
         print(token_data_memory)
 
-       
         with open(TOKEN_PATH, "w") as f:
             json.dump(token_data, f, indent=2)
 
